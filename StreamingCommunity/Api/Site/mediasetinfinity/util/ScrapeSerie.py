@@ -47,6 +47,8 @@ class GetSerieInfo:
         return self.serie_id
 
     def _get_public_id(self):
+        self.public_id = "PR1GhC"
+        return self.public_id
         """Ottiene il public ID tramite l'API watchlist"""
         bearer_token = get_bearer_token()
         headers = {
