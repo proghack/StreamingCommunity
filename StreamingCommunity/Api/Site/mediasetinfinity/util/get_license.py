@@ -7,6 +7,7 @@ import xml.etree.ElementTree as ET
 
 # External library
 import httpx
+from rich.console import Console
 from playwright.sync_api import sync_playwright
 
 
@@ -16,12 +17,15 @@ from StreamingCommunity.Util.headers import get_headers, get_userAgent
 
 
 # Variable
+console = Console()
 MAX_TIMEOUT = config_manager.get_int("REQUESTS", "timeout")
 beToken = None
 
 
 def generate_betoken(username: str, password: str) -> str | None:
     with sync_playwright() as p:
+
+        console.print("[cyan]Launching browser...")
         browser = p.chromium.launch(headless=True)
         page = browser.new_page()
         be_token_holder = {"token": None}
@@ -40,6 +44,7 @@ def generate_betoken(username: str, password: str) -> str | None:
                     print("Errore nel parsing beToken:", e)
 
         # Load home page
+        console.print("[cyan]Navigating to Mediaset Play...")
         page.goto("https://www.mediasetplay.mediaset.it")
         page.wait_for_load_state("networkidle")
 
@@ -60,6 +65,7 @@ def generate_betoken(username: str, password: str) -> str | None:
             pass
 
         # page.wait_for_timeout(1000)
+        console.print("[cyan]Filling login credentials...")
         page.locator("input[name='username']:visible").fill(username)
         page.locator("input[name='password']:visible").fill(password)
         page.on("response", handle_response)
@@ -71,6 +77,7 @@ def generate_betoken(username: str, password: str) -> str | None:
 
         for _ in range(10):
             if be_token_holder["token"]:
+                console.print("[green]Login successful!")
                 break
                 
             page.wait_for_timeout(500)
